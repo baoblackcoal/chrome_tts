@@ -9,18 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
 
-  // Populate voice options
+  // Populate country options and voice options
   chrome.tts.getVoices((voices) => {
+    populateCountryOptions(voices); // Populate countries initially
     populateVoiceOptions(voices); // Populate voices initially
     countrySelect.addEventListener('change', () => populateVoiceOptions(voices)); // Update voices when country changes
     loadSavedSettings(); // Load settings after voices are populated
   });
 
+  function populateCountryOptions(voices) {
+    const countries = new Set();
+    voices.forEach((voice) => {
+      const countryCode = voice.lang.split('-')[0];
+      countries.add(countryCode);
+    });
+    countrySelect.innerHTML = ''; // Clear previous options
+    countries.forEach((country) => {
+      const option = document.createElement('option');
+      option.value = country;
+      option.textContent = country;
+      countrySelect.appendChild(option);
+    });
+  }
+
   function populateVoiceOptions(voices) {
     const selectedCountry = countrySelect.value;
     voiceSelect.innerHTML = ''; // Clear previous options
     voices.forEach((voice) => {
-      if (voice.lang === selectedCountry) {
+      if (voice.lang.startsWith(selectedCountry)) { // Match based on country code
         const option = document.createElement('option');
         option.value = voice.voiceName;
         option.textContent = `${voice.voiceName} (${voice.lang})`;
@@ -80,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetButton.addEventListener('click', () => {
     const defaultSettings = {
-      country: 'en-US',
+      country: 'en',
       voice: '',
       rate: 1.0,
       pitch: 1.0,
@@ -94,7 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
       pitchInput.value = defaultSettings.pitch;
       volumeInput.value = defaultSettings.volume;
       highlightingSelect.value = defaultSettings.highlighting;
-      chrome.tts.getVoices((voices) => populateVoiceOptions(voices)); // Repopulate voices for default country
+      chrome.tts.getVoices((voices) => {
+        populateCountryOptions(voices); // Repopulate countries
+        populateVoiceOptions(voices); // Repopulate voices for default country
+      });
     });
   });
 });
