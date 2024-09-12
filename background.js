@@ -17,16 +17,29 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+function speakText(text) {
+  chrome.storage.sync.get('ttsSettings', (data) => {
+    const settings = data.ttsSettings || defaultSettings;
+    chrome.tts.speak(text, {
+      rate: Number(settings.rate === '' ? 1 : settings.rate),
+      pitch: Number(settings.pitch === '' ? 1 : settings.pitch),
+      volume: Number(settings.volume),
+      voiceName: settings.voice
+    });
+  });
+}
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "readAloud") {
-    chrome.storage.sync.get('ttsSettings', (data) => {
-      const settings = data.ttsSettings || defaultSettings;
-      chrome.tts.speak(info.selectionText, {
-        rate: settings.rate === '' ? 1 : settings.rate,
-        pitch: settings.pitch === '' ? 1 : settings.pitch,
-        volume: settings.volume,
-        voiceName: settings.voice
-      });
-    });
+    const text = info.selectionText;
+    speakText(text);
+  }
+});
+
+// Listen for messages from popup.js
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'speak') {
+    const text = message.text;
+    speakText(text);
   }
 });

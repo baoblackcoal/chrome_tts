@@ -143,11 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedLanguage = languageSelect.value;
         const testText = languageStrings[selectedLanguage] || "Good day, world! May your moments be filled with peace.";
         console.log(testText);
-        chrome.tts.speak(testText, {
-          rate: Number(speedSelect.value === '' ? 1 : speedSelect.value),
-          pitch: Number(pitchSelect.value === '' ? 1 : pitchSelect.value),
-          volume: parseFloat(volumeInput.value),
-          voiceName: voiceSelect.value,
+        
+        // Send message to background script to handle TTS
+        chrome.runtime.sendMessage({
+          action: 'speak',
+          text: testText,
         });
       })
       .catch(error => console.error('Error loading language strings:', error));
