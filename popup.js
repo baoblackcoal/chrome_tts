@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const languageSelect = document.getElementById('language');
   const voiceSelect = document.getElementById('voice');
-  const speedInput = document.getElementById('speed');
-  const pitchInput = document.getElementById('pitch');
+  const speedSelect = document.getElementById('speed');
+  const pitchSelect = document.getElementById('pitch');
   const volumeInput = document.getElementById('volume');
   const testButton = document.getElementById('test');
   const stopButton = document.getElementById('stop');
@@ -46,6 +46,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function populateSpeedAndPitchOptions() {
+    const speedOptions = ['', 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+    const pitchOptions = ['', 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+    speedSelect.innerHTML = '';
+    pitchSelect.innerHTML = '';
+    speedOptions.forEach((value) => {
+      const speedOption = document.createElement('option');
+      speedOption.value = value;
+      speedOption.textContent = value === '' ? 'Default' : `${value}X`;
+      speedSelect.appendChild(speedOption);
+    });
+    pitchOptions.forEach((value) => {
+      const pitchOption = document.createElement('option');
+      pitchOption.value = value;
+      pitchOption.textContent = value === '' ? 'Default' : `${value}X`;
+      pitchSelect.appendChild(pitchOption);
+    });
+  }
+
+  // Call the function to populate speed and pitch options
+  populateSpeedAndPitchOptions();
+
   function loadSavedSettings() {
     chrome.storage.sync.get('ttsSettings', (data) => {
       const settings = data.ttsSettings || {};
@@ -55,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (settings.voice) {
         voiceSelect.value = settings.voice;
       }
-      speedInput.value = settings.rate || 1;
-      pitchInput.value = settings.pitch || 1;
+      speedSelect.value = settings.rate || 1;
+      pitchSelect.value = settings.pitch || 1;
       volumeInput.value = settings.volume || 1;
 
       chrome.tts.getVoices((voices) => populateVoiceOptions(voices));
@@ -67,14 +89,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const settings = {
       language: languageSelect.value,
       voice: voiceSelect.value,
-      rate: parseFloat(speedInput.value),
-      pitch: parseFloat(pitchInput.value),
+      rate: speedSelect.value,
+      pitch: pitchSelect.value,
       volume: parseFloat(volumeInput.value)
     };
     chrome.storage.sync.set({ ttsSettings: settings });
   }
 
-  [languageSelect, voiceSelect, speedInput, pitchInput, volumeInput].forEach(
+  [languageSelect, voiceSelect, speedSelect, pitchSelect, volumeInput].forEach(
     (element) => element.addEventListener('change', saveSettings)
   );
 
@@ -83,12 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(response => response.json())
       .then(languageStrings => {
         const selectedLanguage = languageSelect.value;
-        // const testText = languageStrings[selectedLanguage] || "Good day, world! May your moments be filled with peace.";
-        const testText = "Good day, world! May your moments be filled with peace.";
+        const testText = languageStrings[selectedLanguage] || "Good day, world! May your moments be filled with peace.";
         console.log(testText);
         chrome.tts.speak(testText, {
-          rate: parseFloat(speedInput.value),
-          pitch: parseFloat(pitchInput.value),
+          rate: Number(speedSelect.value),
+          pitch: Number(pitchSelect.value),
           volume: parseFloat(volumeInput.value),
           voiceName: voiceSelect.value,
         });
@@ -111,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ ttsSettings: defaultSettings }, () => {
       languageSelect.value = defaultSettings.country;
       voiceSelect.value = ''; // Reset voice selection
-      speedInput.value = defaultSettings.rate;
-      pitchInput.value = defaultSettings.pitch;
+      speedSelect.value = defaultSettings.rate;
+      pitchSelect.value = defaultSettings.pitch;
       volumeInput.value = defaultSettings.volume;
       chrome.tts.getVoices((voices) => {
         populateLanguageOptions(voices); // Repopulate countries
