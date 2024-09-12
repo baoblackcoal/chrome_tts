@@ -1,6 +1,6 @@
 // Default settings
 const defaultSettings = {
-  language: 'Default',
+  language: '',
   voiceName: '',
   rate: 1.0,
   pitch: 1.0,

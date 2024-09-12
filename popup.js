@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const languageCode = voice.lang.split('-')[0];
       languages.add(languageCode);
     });
-    languageSelect.innerHTML = ''; // Clear previous options
 
     // Add Default option
     const defaultOption = document.createElement('option');
@@ -106,9 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const settings = data.ttsSettings || {};
       if (settings.language) {
         languageSelect.value = settings.language;
-      } else if (settings.language === '') {
-        languageSelect.value = '';
-        languageSelect.innerHTML = 'Default';
+      } else {
+        languageSelect.value = ''; // Set to Default if no language is saved
       }
       if (settings.voice) {
         voiceSelect.value = settings.voice;
