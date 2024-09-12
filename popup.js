@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const volumeInput = document.getElementById('volume');
   const highlightingSelect = document.getElementById('highlighting');
   const testButton = document.getElementById('test');
+  const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
 
   // Populate voice options
@@ -60,6 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
       volume: parseFloat(volumeInput.value),
       voiceName: voiceSelect.value
     });
+  });
+
+  // Stop button
+  stopButton.addEventListener('click', () => {
+    chrome.tts.stop();
   });
 
   // Reset button
