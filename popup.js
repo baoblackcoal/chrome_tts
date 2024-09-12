@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.tts.getVoices((voices) => {
     populateLanguageOptions(voices); // Populate countries initially
     populateVoiceOptions(voices); // Populate voices initially
-    languageSelect.addEventListener('change', () => populateVoiceOptions(voices)); 
+    languageSelect.addEventListener('change', () => {
+        populateVoiceOptions(voices); 
+        saveSettings();
+    }); 
     loadSavedSettings(); // Load settings after voices are populated
   });
 
@@ -80,13 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(response => response.json())
       .then(languageStrings => {
         const selectedLanguage = languageSelect.value;
-        const testText = languageStrings[selectedLanguage] || "Good day, world! May your moments be filled with peace.";
+        // const testText = languageStrings[selectedLanguage] || "Good day, world! May your moments be filled with peace.";
+        const testText = "Good day, world! May your moments be filled with peace.";
         console.log(testText);
         chrome.tts.speak(testText, {
           rate: parseFloat(speedInput.value),
           pitch: parseFloat(pitchInput.value),
           volume: parseFloat(volumeInput.value),
-          voiceName: voiceSelect.value
+          voiceName: voiceSelect.value,
         });
       })
       .catch(error => console.error('Error loading language strings:', error));
