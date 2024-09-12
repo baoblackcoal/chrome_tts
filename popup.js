@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const countrySelect = document.getElementById('country'); // New country select element
   const voiceSelect = document.getElementById('voice');
   const speedInput = document.getElementById('speed');
   const pitchInput = document.getElementById('pitch');
@@ -10,21 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Populate voice options
   chrome.tts.getVoices((voices) => {
-    voices.forEach((voice) => {
-      const option = document.createElement('option');
-      option.value = voice.voiceName;
-      option.textContent = `${voice.voiceName} (${voice.lang})`;
-      voiceSelect.appendChild(option);
-    });
-  
-    // Load saved settings after populating voices
-    loadSavedSettings();
+    populateVoiceOptions(voices); // Populate voices initially
+    countrySelect.addEventListener('change', () => populateVoiceOptions(voices)); // Update voices when country changes
+    loadSavedSettings(); // Load settings after voices are populated
   });
 
-  // Load saved settings
+  function populateVoiceOptions(voices) {
+    const selectedCountry = countrySelect.value;
+    voiceSelect.innerHTML = ''; // Clear previous options
+    voices.forEach((voice) => {
+      if (voice.lang === selectedCountry) {
+        const option = document.createElement('option');
+        option.value = voice.voiceName;
+        option.textContent = `${voice.voiceName} (${voice.lang})`;
+        voiceSelect.appendChild(option);
+      }
+    });
+  }
+
   function loadSavedSettings() {
     chrome.storage.sync.get('ttsSettings', (data) => {
       const settings = data.ttsSettings || {};
+      if (settings.country) {
+        countrySelect.value = settings.country;
+      }
       if (settings.voice) {
         voiceSelect.value = settings.voice;
       }
@@ -32,12 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
       pitchInput.value = settings.pitch || 1;
       volumeInput.value = settings.volume || 1;
       highlightingSelect.value = settings.highlighting || 'none';
+
+      // Populate voices based on saved country
+      chrome.tts.getVoices((voices) => populateVoiceOptions(voices));
     });
   }
 
-  // Save settings
   function saveSettings() {
     const settings = {
+      country: countrySelect.value,
       voice: voiceSelect.value,
       rate: parseFloat(speedInput.value),
       pitch: parseFloat(pitchInput.value),
@@ -47,12 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ ttsSettings: settings });
   }
 
-  // Event listeners for input changes
-  [voiceSelect, speedInput, pitchInput, volumeInput, highlightingSelect].forEach(
+  [countrySelect, voiceSelect, speedInput, pitchInput, volumeInput, highlightingSelect].forEach(
     (element) => element.addEventListener('change', saveSettings)
   );
 
-  // Test button
   testButton.addEventListener('click', () => {
     const testText = "This is a test of the text-to-speech settings.";
     chrome.tts.speak(testText, {
@@ -63,14 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Stop button
   stopButton.addEventListener('click', () => {
     chrome.tts.stop();
   });
 
-  // Reset button
   resetButton.addEventListener('click', () => {
     const defaultSettings = {
+      country: 'en-US',
       voice: '',
       rate: 1.0,
       pitch: 1.0,
@@ -78,11 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
       highlighting: 'none'
     };
     chrome.storage.sync.set({ ttsSettings: defaultSettings }, () => {
-      voiceSelect.value = defaultSettings.voice;
+      countrySelect.value = defaultSettings.country;
+      voiceSelect.value = ''; // Reset voice selection
       speedInput.value = defaultSettings.rate;
       pitchInput.value = defaultSettings.pitch;
       volumeInput.value = defaultSettings.volume;
       highlightingSelect.value = defaultSettings.highlighting;
+      chrome.tts.getVoices((voices) => populateVoiceOptions(voices)); // Repopulate voices for default country
     });
   });
 });
