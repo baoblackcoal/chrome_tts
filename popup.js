@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const speedInput = document.getElementById('speed');
   const pitchInput = document.getElementById('pitch');
   const volumeInput = document.getElementById('volume');
-  const highlightingSelect = document.getElementById('highlighting');
   const testButton = document.getElementById('test');
   const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
@@ -56,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
       speedInput.value = settings.rate || 1;
       pitchInput.value = settings.pitch || 1;
       volumeInput.value = settings.volume || 1;
-      highlightingSelect.value = settings.highlighting || 'none';
 
       chrome.tts.getVoices((voices) => populateVoiceOptions(voices));
     });
@@ -68,13 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
       voice: voiceSelect.value,
       rate: parseFloat(speedInput.value),
       pitch: parseFloat(pitchInput.value),
-      volume: parseFloat(volumeInput.value),
-      highlighting: highlightingSelect.value
+      volume: parseFloat(volumeInput.value)
     };
     chrome.storage.sync.set({ ttsSettings: settings });
   }
 
-  [languageSelect, voiceSelect, speedInput, pitchInput, volumeInput, highlightingSelect].forEach(
+  [languageSelect, voiceSelect, speedInput, pitchInput, volumeInput].forEach(
     (element) => element.addEventListener('change', saveSettings)
   );
 
@@ -98,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       voice: '',
       rate: 1.0,
       pitch: 1.0,
-      volume: 1.0,
-      highlighting: 'none'
+      volume: 1.0
     };
     chrome.storage.sync.set({ ttsSettings: defaultSettings }, () => {
       languageSelect.value = defaultSettings.country;
@@ -107,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
       speedInput.value = defaultSettings.rate;
       pitchInput.value = defaultSettings.pitch;
       volumeInput.value = defaultSettings.volume;
-      highlightingSelect.value = defaultSettings.highlighting;
       chrome.tts.getVoices((voices) => {
         populateLanguageOptions(voices); // Repopulate countries
         populateVoiceOptions(voices); // Repopulate voices for default country

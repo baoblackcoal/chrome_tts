@@ -3,8 +3,7 @@ const defaultSettings = {
   voice: '',
   rate: 1.0,
   pitch: 1.0,
-  volume: 1.0,
-  highlighting: 'none'
+  volume: 1.0
 };
 
 // Initialize settings
@@ -25,13 +24,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         rate: settings.rate,
         pitch: settings.pitch,
         volume: settings.volume,
-        voiceName: settings.voice,
-        onEvent: (event) => {
-          if (event.type === 'start' && settings.highlighting !== 'none') {
-            // Implement text highlighting logic here
-            console.log('Text highlighting:', settings.highlighting);
-          }
-        }
+        voiceName: settings.voice
       });
     });
   }
