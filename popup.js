@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const countrySelect = document.getElementById('country'); // New country select element
+  const languageSelect = document.getElementById('language');
   const voiceSelect = document.getElementById('voice');
   const speedInput = document.getElementById('speed');
   const pitchInput = document.getElementById('pitch');
@@ -9,34 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
 
-  // Populate country options and voice options
   chrome.tts.getVoices((voices) => {
-    populateCountryOptions(voices); // Populate countries initially
+    populateLanguageOptions(voices); // Populate countries initially
     populateVoiceOptions(voices); // Populate voices initially
-    countrySelect.addEventListener('change', () => populateVoiceOptions(voices)); // Update voices when country changes
+    languageSelect.addEventListener('change', () => populateVoiceOptions(voices)); 
     loadSavedSettings(); // Load settings after voices are populated
   });
 
-  function populateCountryOptions(voices) {
-    const countries = new Set();
+  function populateLanguageOptions(voices) {
+    const languages = new Set();
     voices.forEach((voice) => {
-      const countryCode = voice.lang.split('-')[0];
-      countries.add(countryCode);
+      const languageCode = voice.lang.split('-')[0];
+      languages.add(languageCode);
     });
-    countrySelect.innerHTML = ''; // Clear previous options
-    countries.forEach((country) => {
+    languageSelect.innerHTML = ''; // Clear previous options
+    languages.forEach((language) => {
       const option = document.createElement('option');
-      option.value = country;
-      option.textContent = country;
-      countrySelect.appendChild(option);
+      option.value = language;
+      option.textContent = language;
+      languageSelect.appendChild(option);
     });
   }
 
   function populateVoiceOptions(voices) {
-    const selectedCountry = countrySelect.value;
+    const selectedLanguage = languageSelect.value;
     voiceSelect.innerHTML = ''; // Clear previous options
     voices.forEach((voice) => {
-      if (voice.lang.startsWith(selectedCountry)) { // Match based on country code
+      if (voice.lang.startsWith(selectedLanguage)) { 
         const option = document.createElement('option');
         option.value = voice.voiceName;
         option.textContent = `${voice.voiceName} (${voice.lang})`;
@@ -48,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadSavedSettings() {
     chrome.storage.sync.get('ttsSettings', (data) => {
       const settings = data.ttsSettings || {};
-      if (settings.country) {
-        countrySelect.value = settings.country;
+      if (settings.language) {
+        languageSelect.value = settings.language;
       }
       if (settings.voice) {
         voiceSelect.value = settings.voice;
@@ -59,14 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
       volumeInput.value = settings.volume || 1;
       highlightingSelect.value = settings.highlighting || 'none';
 
-      // Populate voices based on saved country
       chrome.tts.getVoices((voices) => populateVoiceOptions(voices));
     });
   }
 
   function saveSettings() {
     const settings = {
-      country: countrySelect.value,
+      language: languageSelect.value,
       voice: voiceSelect.value,
       rate: parseFloat(speedInput.value),
       pitch: parseFloat(pitchInput.value),
@@ -76,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.set({ ttsSettings: settings });
   }
 
-  [countrySelect, voiceSelect, speedInput, pitchInput, volumeInput, highlightingSelect].forEach(
+  [languageSelect, voiceSelect, speedInput, pitchInput, volumeInput, highlightingSelect].forEach(
     (element) => element.addEventListener('change', saveSettings)
   );
 
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetButton.addEventListener('click', () => {
     const defaultSettings = {
-      country: 'en',
+      language: 'en',
       voice: '',
       rate: 1.0,
       pitch: 1.0,
@@ -104,14 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
       highlighting: 'none'
     };
     chrome.storage.sync.set({ ttsSettings: defaultSettings }, () => {
-      countrySelect.value = defaultSettings.country;
+      languageSelect.value = defaultSettings.country;
       voiceSelect.value = ''; // Reset voice selection
       speedInput.value = defaultSettings.rate;
       pitchInput.value = defaultSettings.pitch;
       volumeInput.value = defaultSettings.volume;
       highlightingSelect.value = defaultSettings.highlighting;
       chrome.tts.getVoices((voices) => {
-        populateCountryOptions(voices); // Repopulate countries
+        populateLanguageOptions(voices); // Repopulate countries
         populateVoiceOptions(voices); // Repopulate voices for default country
       });
     });
