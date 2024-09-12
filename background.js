@@ -1,7 +1,7 @@
 // Default settings
 const defaultSettings = {
-  language: 'en',
-  voice: '',
+  language: 'Default',
+  voiceName: '',
   rate: 1.0,
   pitch: 1.0,
   volume: 1.0
@@ -22,8 +22,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.storage.sync.get('ttsSettings', (data) => {
       const settings = data.ttsSettings || defaultSettings;
       chrome.tts.speak(info.selectionText, {
-        rate: settings.rate,
-        pitch: settings.pitch,
+        rate: settings.rate === '' ? 1 : settings.rate,
+        pitch: settings.pitch === '' ? 1 : settings.pitch,
         volume: settings.volume,
         voiceName: settings.voice
       });
