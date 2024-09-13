@@ -16,7 +16,7 @@ describe('Popup Test', () => {
             headless: false, // Set to true if you don't need to see the browser
             // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
             args: [
-                '--enable-speech-dispatcher',// do not work on windows!
+                // '--enable-speech-dispatcher',//  not available in the test environment!
                 `--disable-extensions-except=${path.resolve(__dirname, './')}`,
                 `--load-extension=${path.resolve(__dirname, './')}`,
             ]
@@ -40,14 +40,14 @@ describe('Popup Test', () => {
         }
 
         // Open the extension's popup page with a test tab ID
-        const testTabId = 0; // Example tab ID to be passed
+        const testTabId = 0; 
         popupPage = await browser.newPage();
         await popupPage.goto(`chrome-extension://${extensionId}/popup.html?tab=${testTabId}`);
     });
 
     afterAll(async () => {
         await browser.close();
-    }); // Increase timeout to 10 seconds
+    }); 
 
 
     it('should log ok', async () => {
@@ -79,8 +79,10 @@ describe('Popup Test', () => {
 
 
     it('should save settings when changed', async () => {
+        // tts voices can not be tested because they are not available in the test environment
         // await popupPage.select('#language', 'en');
         // await popupPage.select('#voice', 'Google US English');
+
         const volume = 0.8
         const pitch = '1.25'
         const speed = '1.5'
@@ -94,7 +96,7 @@ describe('Popup Test', () => {
         await changeVolume(volume);
 
         await popupPage.click('#test');
-        // Wait for the TTS to finish speaking (approx 15 seconds)
+        // Wait for the TTS to finish speaking
         await new Promise(resolve => setTimeout(resolve, 2000));
         await popupPage.click('#stop');
 
