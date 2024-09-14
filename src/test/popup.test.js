@@ -16,7 +16,7 @@ describe('Popup Test', () => {
 
         // Run npm build command
         let needBuild = false;
-        // needBuild = true;
+        needBuild = true;
         if (needBuild) {
             await new Promise((resolve, reject) => {
                 exec('npm run build', (error, stdout, stderr) => {
@@ -29,7 +29,7 @@ describe('Popup Test', () => {
             });
         }
 
-        const extensionPath = '../dist';
+        const extensionPath = '../../dist';
         // const extensionPath = './';
         browser = await puppeteer.launch({
             headless: false, // Set to true if you don't need to see the browser
