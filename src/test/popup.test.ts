@@ -1,6 +1,7 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import path from 'path';
 import { exec } from 'child_process';
+import type { TtsSettings } from '../background'; // Import the interface
 
 describe('Popup Test', () => {
   let browser: Browser;
@@ -78,17 +79,19 @@ describe('Popup Test', () => {
   }
 
   it('should save settings when changed', async () => {
-    const volume = 0.8;
-    const pitch = '1.25';
-    const speed = '1.5';
-    const language = '';
-    const voiceName = '';
+    const settings: TtsSettings = {
+      volume: 0.8,
+      pitch: 1.25,
+      rate: 1.5,
+      language: '',
+      voiceName: ''
+    };
 
-    await popupPage.select('#language', language);
-    await popupPage.select('#voiceName', voiceName);
-    await popupPage.select('#speed', speed);
-    await popupPage.select('#pitch', pitch);
-    await changeVolume(volume);
+    await popupPage.select('#language', settings.language);
+    await popupPage.select('#voiceName', settings.voiceName);
+    await popupPage.select('#speed', settings.rate.toString());
+    await popupPage.select('#pitch', settings.pitch.toString());
+    await changeVolume(settings.volume);
 
     await popupPage.click('#test');
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -102,32 +105,32 @@ describe('Popup Test', () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     await popupPage.click('#stop');
 
-    const settings = await popupPage.evaluate(() => {
-      return new Promise<any>(resolve => {
+    const savedSettings = await popupPage.evaluate(() => {
+      return new Promise<TtsSettings>(resolve => {
         chrome.storage.sync.get('ttsSettings', (data: { [key: string]: any }) => resolve(data.ttsSettings));
       });
     });
 
-    expect(settings.language).toBe(language);
-    expect(settings.voiceName).toBe(voiceName);
-    expect(settings.rate).toBe(speed);
-    expect(settings.pitch).toBe(pitch);
-    expect(settings.volume).toBe(volume);
+    expect(savedSettings.language).toBe(settings.language);
+    expect(savedSettings.voiceName).toBe(settings.voiceName);
+    expect(savedSettings.rate).toBe(settings.rate);
+    expect(savedSettings.pitch).toBe(settings.pitch);
+    expect(savedSettings.volume).toBe(settings.volume);
   }, 30000);
 
   it('should reset settings to default', async () => {
     await popupPage.click('#reset');
 
-    const settings = await popupPage.evaluate(() => {
-      return new Promise<any>(resolve => {
+    const defaultSettings = await popupPage.evaluate(() => {
+      return new Promise<TtsSettings>(resolve => {
         chrome.storage.sync.get('ttsSettings', (data: { [key: string]: any }) => resolve(data.ttsSettings));
       });
     });
 
-    expect(settings.language).toBe('');
-    expect(settings.voiceName).toBe('');
-    expect(settings.rate).toBe(1.0);
-    expect(settings.pitch).toBe(1.0);
-    expect(settings.volume).toBe(1.0);
+    expect(defaultSettings.language).toBe('');
+    expect(defaultSettings.voiceName).toBe('');
+    expect(defaultSettings.rate).toBe(1.0);
+    expect(defaultSettings.pitch).toBe(1.0);
+    expect(defaultSettings.volume).toBe(1.0);
   });
 });

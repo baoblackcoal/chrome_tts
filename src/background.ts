@@ -1,7 +1,14 @@
 /// <reference types="chrome"/>
 
-// Default settings0
-const defaultTtsSettings = {
+export interface TtsSettings {
+  language: string;
+  voiceName: string;
+  rate: number;
+  pitch: number;
+  volume: number;
+}
+
+const defaultTtsSettings: TtsSettings = {
   language: '',
   voiceName: '',
   rate: 1.0,
@@ -11,7 +18,7 @@ const defaultTtsSettings = {
 
 // Initialize settings
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ ttsSettings: defaultTtsSettings });
+  chrome.storage.sync.set({ ttsSettings: defaultTtsSettings as TtsSettings });
   chrome.contextMenus.create({
     id: "readAloud",
     title: "Read with TTS",
@@ -21,11 +28,11 @@ chrome.runtime.onInstalled.addListener(() => {
 
 function speakText(text: string) {
   chrome.storage.sync.get('ttsSettings', (data: { [key: string]: any }) => {
-    const settings = data.ttsSettings || defaultTtsSettings;
+    const settings: TtsSettings = data.ttsSettings as TtsSettings || defaultTtsSettings;
     chrome.tts.speak(text, {
-      rate: settings.rate === '' ? 1 : Number(settings.rate),
-      pitch: settings.pitch === '' ? 1 : Number(settings.pitch),
-      volume: settings.volume as number,
+      rate: settings.rate,
+      pitch: settings.pitch,
+      volume: settings.volume,
       voiceName: settings.voiceName
     });
   });
