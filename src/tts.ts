@@ -1,4 +1,4 @@
-import type { TtsSettings } from './background'; // Import the interface
+import { TtsSettings, defaultTtsSettings } from './common';
 
 document.addEventListener('DOMContentLoaded', () => {
     const languageSelect = document.getElementById('language') as HTMLSelectElement;
@@ -10,13 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopButton = document.getElementById('stop') as HTMLButtonElement;
     const resetButton = document.getElementById('reset') as HTMLButtonElement;
 
-    let settingsTemp: TtsSettings = {
-        language: '',
-        voiceName: '',
-        rate: 1.0,
-        pitch: 1.0,
-        volume: 1.0
-    };
+    let settingsTemp: TtsSettings = { ...defaultTtsSettings };
 
     chrome.tts.getVoices((voices: chrome.tts.TtsVoice[]) => {
         populateLanguageOptions(voices);
@@ -107,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadSavedSettings() {
         chrome.storage.sync.get(['ttsSettings'], (items) => {
-            const settings = items.ttsSettings as TtsSettings || settingsTemp;
+            const settings = items.ttsSettings as TtsSettings || { ...defaultTtsSettings };
             if (settings.language) {
                 languageSelect.value = settings.language;
             } else {
@@ -162,13 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     resetButton.addEventListener('click', () => {
-        const defaultSettings: TtsSettings = {
-            language: '',
-            voiceName: '',
-            rate: 1.0,
-            pitch: 1.0,
-            volume: 1.0
-        };
+        const defaultSettings: TtsSettings = { ...defaultTtsSettings };
         chrome.storage.sync.set({ ttsSettings: defaultSettings }, () => {
             languageSelect.value = defaultSettings.language;
             voiceSelect.value = defaultSettings.voiceName;

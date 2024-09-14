@@ -40,6 +40,7 @@ module.exports = (env, argv) => {
     entry: {
       popup: './src/popup.ts',
       background: './src/background.ts',
+      common: './src/common.ts',
       tts: './src/tts.ts'
     },
     output: {
