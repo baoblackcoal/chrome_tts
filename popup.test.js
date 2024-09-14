@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
+const { exec } = require('child_process');
 
 describe('Popup Test', () => {
     let browser;
@@ -10,11 +11,24 @@ describe('Popup Test', () => {
     const testTabId = 0; 
 
     beforeAll(async () => {
-        //set timeoout to 30 seconds
-        // jest.setTimeout(30000);
-        
-        // const extensionPath = './dist';
-        const extensionPath = './';
+        // jest set timeout to wait for the build to finish
+        jest.setTimeout(30000);
+
+        // Run npm build command
+        await new Promise((resolve, reject) => {
+            exec('npm run build', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`exec error: ${error}`);
+                    return reject(error);
+                }
+                // console.log(`stdout: ${stdout}`);
+                // console.error(`stderr: ${stderr}`);
+                resolve();
+            });
+        });
+
+        const extensionPath = './dist';
+        // const extensionPath = './';
         browser = await puppeteer.launch({
             headless: false, // Set to true if you don't need to see the browser
             // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -45,12 +59,13 @@ describe('Popup Test', () => {
         // Open the extension's popup page with a test tab ID
         popupPage = await browser.newPage();
         await popupPage.goto(`chrome-extension://${extensionId}/popup.html?tab=${testTabId}`);
-    });
+    }, 30000); // Increase timeout to 30 seconds
 
     afterAll(async () => {
-        await browser.close();
-    }); 
-
+        if (browser) {
+            await browser.close();
+        }
+    });
 
     it('should log ok', async () => {
         console.log('ok');

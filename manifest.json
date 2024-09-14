@@ -5,7 +5,7 @@
   "description": "Reads selected text aloud with customizable settings",
   "permissions": ["contextMenus", "tts", "storage"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.bundle.js"
   },
   "action": {
     "default_popup": "popup.html",
