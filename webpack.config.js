@@ -1,6 +1,7 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
 
 const fileExtensions = ["jpg", "jpeg", "png", "gif", "eot", "otf", "svg", "ttf", "woff", "woff2"];
 const moduleRules = [
@@ -32,7 +33,7 @@ const moduleRules = [
 ];
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
 
   return {
     mode: isProduction ? 'production' : 'development',
@@ -73,6 +74,9 @@ module.exports = (env, argv) => {
           { from: 'src/languageStrings.json', to: 'languageStrings.json' },
           { from: 'src/48.png', to: '48.png' }
         ]
+      }),
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       })
     ],
     resolve: {
