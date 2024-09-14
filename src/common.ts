@@ -1,3 +1,4 @@
+// Define the TTS settings interface
 export interface TtsSettings {
   language: string;
   voiceName: string;
@@ -6,6 +7,7 @@ export interface TtsSettings {
   volume: number;
 }
 
+// Default TTS settings
 export const defaultTtsSettings: TtsSettings = {
   language: '',
   voiceName: '',

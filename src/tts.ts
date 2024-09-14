@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tts.getVoices((voices: chrome.tts.TtsVoice[]) => {
         populateLanguageOptions(voices);
         populateVoiceOptions(voices);
+        populateSpeedAndPitchOptions();
         languageSelect.addEventListener('change', () => {
             populateVoiceOptions(voices);
             populateSpeedAndPitchOptions();
@@ -32,11 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'Default';
-        languageSelect.appendChild(defaultOption);
-
+        languageSelect.innerHTML = '<option value="">Default</option>';
         languages.forEach((language) => {
             const option = document.createElement('option');
             option.value = language;
@@ -49,12 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedLanguage = languageSelect.value;
         voiceSelect.innerHTML = '';
 
-        if (selectedLanguage === '') {
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Default';
-            voiceSelect.appendChild(defaultOption);
-        }
+        if (selectedLanguage === '') 
+            voiceSelect.innerHTML = '<option value="">Default</option>';
 
         voices.forEach((voice) => {
             if (voice.lang && voice.lang.startsWith(selectedLanguage) && voice.voiceName) {
@@ -75,12 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const pitchOptions = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
         speedSelect.innerHTML = '';
         pitchSelect.innerHTML = '';
+
         speedOptions.forEach((value) => {
             const speedOption = document.createElement('option');
             speedOption.value = value.toString();
             speedOption.textContent = `${value}X`;
             speedSelect.appendChild(speedOption);
         });
+
         pitchOptions.forEach((value) => {
             const pitchOption = document.createElement('option');
             pitchOption.value = value.toString();
@@ -88,28 +83,15 @@ document.addEventListener('DOMContentLoaded', () => {
             pitchSelect.appendChild(pitchOption);
         });
 
-        if (languageSelect.value === '') {
-            speedSelect.value = '1';
-            pitchSelect.value = '1';
-        } else {
-            speedSelect.value = settingsTemp.rate.toString();
-            pitchSelect.value = settingsTemp.pitch.toString();
-        }
+        speedSelect.value = settingsTemp.rate.toString();
+        pitchSelect.value = settingsTemp.pitch.toString();
     }
-
-    populateSpeedAndPitchOptions();
 
     function loadSavedSettings() {
         chrome.storage.sync.get(['ttsSettings'], (items) => {
             const settings = items.ttsSettings as TtsSettings || { ...defaultTtsSettings };
-            if (settings.language) {
-                languageSelect.value = settings.language;
-            } else {
-                languageSelect.value = '';
-            }
-            if (settings.voiceName) {
-                voiceSelect.value = settings.voiceName;
-            }
+            languageSelect.value = settings.language || '';
+            voiceSelect.value = settings.voiceName || '';
             speedSelect.value = settings.rate.toString();
             pitchSelect.value = settings.pitch.toString();
             volumeInput.value = settings.volume.toString();
