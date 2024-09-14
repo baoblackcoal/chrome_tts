@@ -23,6 +23,11 @@ const moduleRules = [
             }
         },
         exclude: /node_modules/
+    },
+    {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
     }
 ];
 
@@ -31,11 +36,11 @@ module.exports = (env, argv) => {
 
   return {
     mode: isProduction ? 'production' : 'development',
-    devtool: 'inline-source-map', 
+    devtool: 'inline-source-map',
     entry: {
-      popup: './src/popup.js',
-      background: './src/background.js',
-      tts: './src/tts.js'
+      popup: './src/popup.ts',
+      background: './src/background.ts',
+      tts: './src/tts.ts'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -70,7 +75,7 @@ module.exports = (env, argv) => {
       })
     ],
     resolve: {
-      extensions: ['.js']
+      extensions: ['.ts', '.js']
     }
   };
 };
