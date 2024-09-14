@@ -33,16 +33,16 @@ module.exports = (env, argv) => {
     mode: isProduction ? 'production' : 'development',
     devtool: 'inline-source-map', 
     entry: {
-      popup: './popup.js',
-      background: './background.js',
-      tts: './tts.js'
+      popup: './src/popup.js',
+      background: './src/background.js',
+      tts: './src/tts.js'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].bundle.js'
     },
     module: {
-      rules:moduleRules
+      rules: moduleRules
     },
     optimization: {
       minimize: isProduction,
@@ -61,11 +61,11 @@ module.exports = (env, argv) => {
     plugins: [
       new CopyWebpackPlugin({
         patterns: [
-          { from: 'manifest.json', to: 'manifest.json' },
-          { from: 'popup.html', to: 'popup.html' },
-          { from: 'popup.css', to: 'popup.css' },
-          { from: 'languageStrings.json', to: 'languageStrings.json' },
-          { from: '48.png', to: '48.png' }
+          { from: 'src/manifest.json', to: 'manifest.json' },
+          { from: 'src/popup.html', to: 'popup.html' },
+          { from: 'src/popup.css', to: 'popup.css' },
+          { from: 'src/languageStrings.json', to: 'languageStrings.json' },
+          { from: 'src/48.png', to: '48.png' }
         ]
       })
     ],

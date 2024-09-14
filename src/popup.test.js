@@ -8,26 +8,28 @@ describe('Popup Test', () => {
     let extensionId;
     let backgroundPage;
     let pageExample;
-    const testTabId = 0; 
+    const testTabId = 0;
 
     beforeAll(async () => {
         // jest set timeout to wait for the build to finish
         jest.setTimeout(30000);
 
         // Run npm build command
-        await new Promise((resolve, reject) => {
-            exec('npm run build', (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`exec error: ${error}`);
-                    return reject(error);
-                }
-                // console.log(`stdout: ${stdout}`);
-                // console.error(`stderr: ${stderr}`);
-                resolve();
+        let needBuild = false;
+        // needBuild = true;
+        if (needBuild) {
+            await new Promise((resolve, reject) => {
+                exec('npm run build', (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`exec error: ${error}`);
+                        return reject(error);
+                    }
+                    resolve();
+                });
             });
-        });
+        }
 
-        const extensionPath = './dist';
+        const extensionPath = '../dist';
         // const extensionPath = './';
         browser = await puppeteer.launch({
             headless: false, // Set to true if you don't need to see the browser
@@ -114,6 +116,7 @@ describe('Popup Test', () => {
 
         await popupPage.click('#test');
         // assert that the TTS is speaking
+        await new Promise(resolve => setTimeout(resolve, 500)); // wait 500ms for the TTS to start
         const isSpeaking = await popupPage.evaluate(() => {
             return new Promise(resolve => {
                 chrome.tts.isSpeaking(data => resolve(data));
