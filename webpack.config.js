@@ -37,7 +37,7 @@ module.exports = (env, argv) => {
 
   return {
     mode: isProduction ? 'production' : 'development',
-    devtool: 'inline-source-map',
+    devtool: isProduction ? false : 'inline-source-map',
     entry: {
       popup: './src/popup.ts',
       background: './src/background.ts',
@@ -76,7 +76,7 @@ module.exports = (env, argv) => {
         ]
       }),
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || (isProduction ? 'production' : 'development'))
       })
     ],
     resolve: {
