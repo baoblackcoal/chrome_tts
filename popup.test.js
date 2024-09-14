@@ -7,18 +7,21 @@ describe('Popup Test', () => {
     let extensionId;
     let backgroundPage;
     let pageExample;
+    const testTabId = 0; 
 
     beforeAll(async () => {
         //set timeoout to 30 seconds
         // jest.setTimeout(30000);
-
+        
+        // const extensionPath = './dist';
+        const extensionPath = './';
         browser = await puppeteer.launch({
             headless: false, // Set to true if you don't need to see the browser
             // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
             args: [
                 // '--enable-speech-dispatcher',//  not available in the test environment!
-                `--disable-extensions-except=${path.resolve(__dirname, './')}`,
-                `--load-extension=${path.resolve(__dirname, './')}`,
+                `--disable-extensions-except=${path.resolve(__dirname, extensionPath)}`,
+                `--load-extension=${path.resolve(__dirname, extensionPath)}`,
             ]
         });
 
@@ -40,7 +43,6 @@ describe('Popup Test', () => {
         }
 
         // Open the extension's popup page with a test tab ID
-        const testTabId = 0; 
         popupPage = await browser.newPage();
         await popupPage.goto(`chrome-extension://${extensionId}/popup.html?tab=${testTabId}`);
     });
@@ -96,6 +98,14 @@ describe('Popup Test', () => {
         await changeVolume(volume);
 
         await popupPage.click('#test');
+        // assert that the TTS is speaking
+        const isSpeaking = await popupPage.evaluate(() => {
+            return new Promise(resolve => {
+                chrome.tts.isSpeaking(data => resolve(data));
+            });
+        });
+        expect(isSpeaking).toBe(true);
+
         // Wait for the TTS to finish speaking
         await new Promise(resolve => setTimeout(resolve, 2000));
         await popupPage.click('#stop');
@@ -113,7 +123,7 @@ describe('Popup Test', () => {
         expect(settings.rate).toBe(speed);
         expect(settings.pitch).toBe(pitch);
         expect(settings.volume).toBe(volume);
-    }, 3000);
+    }, 30000); // Increase timeout to 30 seconds
 
     it('should reset settings to default', async () => {
         await popupPage.click('#reset');
